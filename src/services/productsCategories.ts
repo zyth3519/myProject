@@ -1,6 +1,6 @@
 import { get, post, del, put } from "../utils/request";
 
-export const loadModelAPI = (params: any): Promise<IProduct.Data> =>
+export const loadModelAPI = (params: any): Promise<IProductCategories.Data> =>
   get("/api/v1/admin/productcategory", params);
 
 export const insertModel = (data: any) => post("/api/v1/admin/productcategory", data);
