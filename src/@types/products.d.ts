@@ -20,7 +20,7 @@ declare module IProduct {
     price: number;
     onSale: number;
     amount: number;
-    category: Category;
+    category?: Category;
   }
 
   export interface Data {

@@ -1,4 +1,5 @@
 export const serverUrl = "http://localhost:1337";
+export const uploadUrl = serverUrl + "/api/v1/common/upload_file";
 
 /**
  * 获取token
@@ -11,13 +12,13 @@ export const setToken = (token: string) => localStorage.setItem("token", token);
  * 处理图片路径
  * @param url
  */
-export const  dalImg = (url: string | undefined ) => {
+export const dalImg = (url: string | undefined) => {
   if (url) {
     if (url.startsWith("http")) {
-      return url
+      return url;
     }
-    return serverUrl + url
+    return serverUrl + url;
   }
 
-  return "http://oss.penkuoer.com/uPic/ss.jpeg"
-}
+  return "http://oss.penkuoer.com/uPic/ss.jpeg";
+};

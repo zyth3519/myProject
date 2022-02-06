@@ -1,18 +1,40 @@
 import React from "react";
-import { Card, Form, Table, Input, Button, Space, Popconfirm } from "antd";
+import {
+  Card,
+  Form,
+  Table,
+  Input,
+  Button,
+  Space,
+  Popconfirm,
+  Modal,
+} from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
+  PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import { useState, useEffect } from "react";
-import { delModel, loadModelAPI } from "../../services/productsCategories";
+import {
+  delModel,
+  insertModel,
+  loadModelAPI,
+  modifyModel,
+} from "../../services/productsCategories";
 import { ColumnsType } from "antd/es/table/Table";
 import { dalImg } from "../../utils/tool";
+import { useForm } from "antd/es/form/Form";
+import FileUpload from "../../components/Upload";
 
 interface Query {
   name?: string;
   page: number;
+}
+
+interface Category {
+  name: string;
+  desc: string;
 }
 
 const ProductsCategory = () => {
@@ -23,6 +45,10 @@ const ProductsCategory = () => {
   const [query, setQuery] = useState<Query>({
     page: 1,
   });
+  const [editForm] = useForm();
+  const [currentID, setCurrentID] = useState<number>(-1);
+  const [isShow, setIsShow] = useState<boolean>(false);
+  const [imgUrl, setImgUrl] = useState<string>();
 
   const loadData = () => {
     loadModelAPI(query).then((res) => {
@@ -40,6 +66,13 @@ const ProductsCategory = () => {
     loadData();
   }, [query]);
 
+  useEffect(() => {
+    if (!isShow) {
+      editForm.resetFields();
+      setCurrentID(-1);
+      setImgUrl("");
+    }
+  }, [isShow]);
   const columns: ColumnsType<IProductCategories.Category> = [
     {
       title: "序号",
@@ -57,7 +90,7 @@ const ProductsCategory = () => {
 
     {
       title: "描述",
-      dataIndex:"desc",
+      dataIndex: "desc",
       align: "center",
     },
     {
@@ -80,7 +113,16 @@ const ProductsCategory = () => {
       render(v: IProductCategories.Category) {
         return (
           <Space>
-            <Button type="primary" icon={<EditOutlined />} />
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              onClick={() => {
+                setCurrentID(v.id);
+                setImgUrl(v.coverImage);
+                setIsShow(true);
+                editForm.setFieldsValue(v);
+              }}
+            />
             <Popconfirm
               title="是否确认删除"
               okText="是"
@@ -98,7 +140,21 @@ const ProductsCategory = () => {
     },
   ];
   return (
-    <Card title="商品管理">
+    <Card
+      title="商品管理"
+      extra={
+        <>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setIsShow(true);
+              editForm.resetFields();
+            }}
+          />
+        </>
+      }
+    >
       <Form
         layout="inline"
         onFinish={({ name }) => {
@@ -132,6 +188,52 @@ const ProductsCategory = () => {
         }}
         style={{ marginTop: "10px" }}
       />
+
+      <Modal
+        title="编辑"
+        visible={isShow}
+        onCancel={() => setIsShow(false)}
+        maskClosable={false}
+        cancelText="取消"
+        okText="确认"
+        onOk={() => {
+          editForm.submit();
+        }}
+      >
+        <Form
+          form={editForm}
+          onFinish={async (v: Category) => {
+            if (currentID === -1)
+              await insertModel({ ...v, coverImage: imgUrl });
+            else
+              await modifyModel(String(currentID), {
+                ...v,
+                coverImage: imgUrl,
+              });
+            setCurrentID(-1);
+            setIsShow(false);
+            loadData();
+          }}
+        >
+          <Form.Item
+            label="名字"
+            name="name"
+            rules={[{ required: true, message: "名字不能为空" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="描述"
+            name="desc"
+            rules={[{ required: true, message: "描述不能为空" }]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+          <Form.Item label="主图" style={{ marginLeft: "12px" }}>
+            <FileUpload imgUrl={imgUrl} setImgUrl={setImgUrl} />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Card>
   );
 };
