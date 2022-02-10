@@ -1,12 +1,37 @@
-import React from "react";
-import { Card } from "antd";
+import { useState, useEffect } from "react";
+import { Carousel } from "antd";
 
-const Board = () => {
+import { getBannersAPI } from "../services/bannersAPI";
+import { dalImg } from "../utils/tool";
+
+function MyBanner() {
+  const [list, setList] = useState([]);
+
+  const contentStyle = {
+    height: "360px",
+    width: "900px",
+    margin: "auto",
+  };
+
+  useEffect(() => {
+    getBannersAPI({}).then((res: any) => {
+      setList(res.data);
+    });
+  }, []);
+
   return (
-    <div>
-      <Card title="看板">看板</Card>
-    </div>
+    <Carousel autoplay>
+      {list.map((item: any) => (
+        <div key={item.id}>
+          <img
+            src={dalImg(item.coverImage)}
+            // rowKey="item.id"
+            style={contentStyle}
+          />
+        </div>
+      ))}
+    </Carousel>
   );
-};
+}
 
-export default Board;
+export default MyBanner;

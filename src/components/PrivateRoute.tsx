@@ -1,15 +1,15 @@
-import { Redirect, Route } from "react-router-dom";
-import React from "react";
+import { Route, Redirect } from "react-router-dom";
 
-const PrivateRoute = ({ component, isAuthenticated, ...rest }: any) => {
-  console.log("ok");
-  const routeComponent = (props: any) =>
-    isAuthenticated ? (
-      React.createElement(component, props)
-    ) : (
-      <Redirect to={{ pathname: "/login" }} />
-    );
-  return <Route {...rest} render={routeComponent} />;
-};
+function isLogined() {
+  return !!localStorage.getItem("token");
+}
+
+function PrivateRoute({ children, ...rest }: any) {
+  if (isLogined()) {
+    return <Route {...rest} render={() => children} />;
+  } else {
+    return <Route {...rest} render={() => <Redirect to="/login" />} />;
+  }
+}
 
 export default PrivateRoute;

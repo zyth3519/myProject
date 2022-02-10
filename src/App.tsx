@@ -1,6 +1,7 @@
 import { Switch, Route, Redirect } from "react-router-dom";
 import Login from "./pages/Login";
 import Main from "./pages/Main";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
@@ -9,10 +10,10 @@ function App() {
         <Route path="/login" exact>
           <Login />
         </Route>
-        <Route path="/admin">
+        <PrivateRoute path="/admin">
           <Main />
-        </Route>
-        <Redirect from="/" to="/login" />
+        </PrivateRoute>
+        <Redirect from="/" to="/admin/doshboard" />
       </Switch>
     </div>
   );
